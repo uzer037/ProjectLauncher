@@ -143,31 +143,50 @@
 			
 
 			<!-- Settings Window Panel -->
-			<StackPanel Name="ModsWindow" IsVisible="False" Width="600" Margin="5,0,0,0">
-				<Label Name="SettingsPageLabel" Content="SETTINGS PAGE"  HorizontalAlignment="Left" FontSize="22"/>
-				<StackPanel Orientation="Horizontal">
-					<Button Name="SettingRounded" Content="Rounded UI" HorizontalAlignment="Left"/>
-					<Slider x:Name="RoundSlider" Minimum="0" Maximum="14" Width="200" Margin="10,0,0,0"/>
-				</StackPanel>
-				<Panel Background="#10FFFFFF" HorizontalAlignment="Stretch" Height="5" />
-				<Label Content="HSV settings" HorizontalAlignment="Left" FontSize="22" />
-				<StackPanel Orientation="Horizontal">
-					<Label Content="Hue" Background="#FF1F1F1F" Width="100" HorizontalContentAlignment="Center" />
-					<Slider x:Name="HueSlider" Minimum="0" Maximum="1" Width="200" Margin="10,0,0,0"/>
-				</StackPanel>
-				<StackPanel Orientation="Horizontal">
-					<Label Content="Saturation" Background="#FF1F1F1F" Width="100" HorizontalContentAlignment="Center" />
-					<Slider x:Name="SaturationSlider" Minimum="0" Maximum="1" Width="200" Margin="10,0,0,0"/>
-				</StackPanel>
-				<StackPanel Orientation="Horizontal">
-					<Label Content="Value" Background="#FF1F1F1F" Width="100" HorizontalContentAlignment="Center"/>
-					<Slider x:Name="ValueSlider" Minimum="0" Maximum="1" Width="200" Margin="10,0,0,0"/>
-				</StackPanel>
-				<Button Name="ResetToDefaultThemeButton" Content="Reset to default" HorizontalAlignment="Left"/>
-				
-				<Panel Background="#10FFFFFF" HorizontalAlignment="Stretch" Height="5" Margin="10,10,10,10" />
-				<Button Name="SettingUpdateLauncher" Content="Update Launcher" HorizontalAlignment="Left"/>
-				
+            <StackPanel Name="ModsWindow" IsVisible="False" Width="600" Margin="5,0,0,0">
+			    <ScrollViewer ScrollViewer.VerticalScrollBarVisibility="Auto" Height="500">
+			        <StackPanel Margin="0,0,0,10">
+				        <Label Name="SettingsPageLabel" Content="SETTINGS PAGE"  HorizontalAlignment="Left" FontSize="22"/>
+				            <StackPanel Orientation="Horizontal">
+					            <Button Name="SettingRounded" Content="Rounded UI" HorizontalAlignment="Left"/>
+					            <Slider x:Name="RoundSlider" Minimum="0" Maximum="14" Width="200" Margin="10,0,0,0"/>
+				            </StackPanel>
+				            <Panel Background="#10FFFFFF" HorizontalAlignment="Stretch" Height="5" />
+				            <Label Content="HSV settings" HorizontalAlignment="Left" FontSize="22" />
+				            <StackPanel Orientation="Horizontal">
+					            <Label Content="Hue" Background="#FF1F1F1F" Width="100" HorizontalContentAlignment="Center" />
+					            <Slider x:Name="HueSlider" Minimum="0" Maximum="1" Width="200" Margin="10,0,0,0"/>
+				            </StackPanel>
+				            <StackPanel Orientation="Horizontal">
+					            <Label Content="Saturation" Background="#FF1F1F1F" Width="100" HorizontalContentAlignment="Center" />
+					            <Slider x:Name="SaturationSlider" Minimum="0" Maximum="1" Width="200" Margin="10,0,0,0"/>
+				            </StackPanel>
+				            <StackPanel Orientation="Horizontal">
+					            <Label Content="Value" Background="#FF1F1F1F" Width="100" HorizontalContentAlignment="Center"/>
+					            <Slider x:Name="ValueSlider" Minimum="0" Maximum="1" Width="200" Margin="10,0,0,0"/>
+				            </StackPanel>
+				            <Button Name="ResetToDefaultThemeButton" Content="Reset to default" HorizontalAlignment="Left"/>
+
+				            <Panel Background="#10FFFFFF" HorizontalAlignment="Stretch" Height="5" Margin="10,10,10,10" />
+				            <Label Content="Compatibility settings" HorizontalAlignment="Left" FontSize="22" />
+				            <CheckBox Name="ProtonCheckbox" Content="Use Proton" HorizontalAlignment="Left"/>
+				            <StackPanel Name="ProtonPanel" IsVisible="False">
+				                <Label Name="ProtonPathFieldLabel" Content="Proton path" HorizontalAlignment="Left"/>
+				                <DockPanel HorizontalAlignment="Stretch" Height="30" Margin="5,0,5,0">
+					                <TextBox Name="ProtonPathField"  TextAlignment="Left" Watermark="Steam Proton Folder Path" Width="500"/>
+					                <Button Name="ProtonPathBrowse" Height="35" Width="35" Margin="12,2,0,0">
+						                <Image Source="avares://ProjectLauncher/Assets/browse.ico"/>
+						                <ToolTip.Tip>
+							                <Label Content="Set a path to the Proton executable here." />
+						                </ToolTip.Tip>
+					                </Button>
+					            </DockPanel>
+				            </StackPanel>
+				            
+				            <Panel Background="#10FFFFFF" HorizontalAlignment="Stretch" Height="5" Margin="10,10,10,10" />
+				            <Button Name="SettingUpdateLauncher" Content="Update Launcher" HorizontalAlignment="Left"/>
+			        </StackPanel>
+			    </ScrollViewer>
 			</StackPanel>
 			<!-- About Panel -->
 			<StackPanel Name="VersionsWindow" IsVisible="False">

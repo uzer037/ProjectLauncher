@@ -121,9 +121,12 @@ namespace ProjectLauncher.Views
             CreateNewInstanceButton.Click += CreateNewInstanceClicked;
             AppPathBrowse.Click += AppPathBrowseClick;
             AppPathField.TextChanged += AppPathFieldChanged;
+            ProtonPathBrowse.Click += ProtonPathBrowseClick;
+            ProtonPathField.TextChanged += ProtonPathFieldChanged;
             SettingRounded.Click += SettingsRoundedClick;
             SettingUpdateLauncher.Click += UpdateLauncherClick;
             RoundSlider.ValueChanged += RoundSliderValueChanged;
+            ProtonCheckbox.Click += ProtonCheckboxClick;
 
             HueSlider.ValueChanged += HSVdataUpdate;
             SaturationSlider.ValueChanged += HSVdataUpdate;
@@ -214,6 +217,16 @@ namespace ProjectLauncher.Views
 
                 if (!string.IsNullOrEmpty(jn["instances"]["app_path"]))
                     AppPathField.Text = jn["instances"]["app_path"];
+                
+                if (!string.IsNullOrEmpty(jn["compatibility"]["use_proton"])) {
+                    ProtonCheckbox.IsChecked = jn["compatibility"]["use_proton"];
+                    if (ProtonCheckbox.IsChecked == true) {
+                        ProtonPanel.IsVisible = true;
+                    }
+                }
+                    
+                if (!string.IsNullOrEmpty(jn["compatibility"]["proton_path"]))
+                    ProtonPathField.Text = jn["compatibility"]["proton_path"];
 
                 if (!string.IsNullOrEmpty(jn["hsv"]["hue"]))
                     HueSlider.Value = Convert.ToDouble(jn["hsv"]["hue"].Value);
@@ -254,6 +267,12 @@ namespace ProjectLauncher.Views
             jn["hsv"]["value"] = ValueSlider.Value.ToString();
             if (AppPathField != null && !string.IsNullOrEmpty(AppPathField.Text))
                 jn["instances"]["app_path"] = AppPathField.Text;
+            
+            if (ProtonCheckbox != null && ProtonCheckbox.IsChecked != null)
+                jn["compatibility"]["use_proton"] = ProtonCheckbox.IsChecked;
+            
+            if (ProtonPathField != null && !string.IsNullOrEmpty(ProtonPathField.Text))
+                jn["compatibility"]["proton_path"] = ProtonPathField.Text;
 
             await File.WriteAllTextAsync(settingsPath, jn.ToString(6));
             savingSettings = false;
@@ -407,6 +426,12 @@ namespace ProjectLauncher.Views
             if (!savingSettings)
                 SaveSettings();
         }
+        
+        void ProtonPathFieldChanged(object? sender, TextChangedEventArgs e)
+        {
+            if (!savingSettings)
+                SaveSettings();
+        }
 
         async void AppPathBrowseClick(object? sender, RoutedEventArgs e)
         {
@@ -446,6 +471,30 @@ namespace ProjectLauncher.Views
 
             AppPathField.Text = path;
         }
+        
+        async void ProtonPathBrowseClick(object? sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                AllowMultiple = false
+            };
+
+            var show = await openFileDialog.ShowAsync(MainWindow.Instance);
+
+            if (show == null)
+                return;
+
+            Debug.WriteLine($"Length: {show.Length}");
+            if (show.Length < 1)
+                return;
+
+            Debug.WriteLine($"Directory: {show[0]}");
+
+            if (!File.Exists(show[0]))
+                return;
+
+            ProtonPathField.Text = show[0];
+        }
 
         void CreateNewInstanceClicked(object? sender, RoutedEventArgs e)
         {
@@ -457,6 +506,33 @@ namespace ProjectLauncher.Views
             LoadInstances();
         }
 
+        void ProtonCheckboxClick(object? sender, RoutedEventArgs e)
+        {
+            ProtonPanel.IsVisible = ProtonCheckbox.IsChecked.HasValue ? ProtonCheckbox.IsChecked.Value : false;
+            if (!savingSettings)
+                SaveSettings();
+        }
+        
+        void setupProtonEnviroment()
+        {
+            var home_dir = Environment.GetEnvironmentVariable("HOME");
+            Dictionary<string, string> environmentVariableDefaults = new Dictionary<string, string>
+            {
+                {"STEAM_COMPAT_CLIENT_INSTALL_PATH", home_dir + "/.steam/root"},
+                {"STEAM_COMPAT_DATA_PATH", home_dir + "/.steam/steam/steamapps/compatdata/440310"},
+                {"PROTON_USE_WINED3D", "1"},
+                {"WINEDEBUG", "0"}
+            };
+            
+            foreach(var env in environmentVariableDefaults)
+            {
+                if (Environment.GetEnvironmentVariable(env.Key) == null)
+                {
+                    Environment.SetEnvironmentVariable(env.Key, env.Value);
+                }
+            }
+        }
+
         void LaunchClick(object? sender, RoutedEventArgs e)
         {
             if (InstancesListBox.SelectedItem is ListBoxItem item && item.DataContext is ProjectArrhythmia projectArrhythmia)
@@ -464,8 +540,24 @@ namespace ProjectLauncher.Views
                 if (File.Exists(projectArrhythmia.Path + "/Project Arrhythmia.exe"))
                 {
                     Debug.WriteLine($"Launch: {projectArrhythmia}");
+                    var executablePath = projectArrhythmia.Path + "/Project Arrhythmia.exe";
                     var startInfo = new ProcessStartInfo();
-                    startInfo.FileName = projectArrhythmia.Path + "/Project Arrhythmia.exe";
+                    if (ProtonCheckbox.IsChecked == true)
+                    {
+                        // Everything inside this clause is assumed to run on linux only
+
+                        // Make sure PA executable is actually allowed to execute
+                        Process.Start("chmod", $"755 \"{executablePath}\"");
+                    
+                        Debug.WriteLine($"Using Proton executable: \"{ProtonPathField.Text}\"");
+                        startInfo.FileName = ProtonPathField.Text;
+                        setupProtonEnviroment();
+                        startInfo.Arguments = $"run \"{executablePath}\"";
+                    }
+                    else 
+                    {
+                        startInfo.FileName = executablePath;
+                    }
                     Process.Start(startInfo);
                 }
             }
